@@ -2,17 +2,20 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'SonarQube' // Nombre del servidor configurado en Jenkins
+        SONARQUBE_ENV = 'SonarQube'
     }
 
     tools {
-        sonarQubeScanner 'DefaultScanner' // Este nombre debe coincidir con el scanner configurado
+        sonar 'DefaultScanner'
     }
 
     stages {
         stage('Debug') {
             steps {
-                sh 'which sonar-scanner || echo "Sonar-scanner no está disponible"'
+                sh '''
+                    echo "PATH is: $PATH"
+                    which sonar-scanner || echo "Sonar-scanner no está disponible"
+                '''
             }
         }
 
@@ -25,7 +28,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh 'sonar-scanner'
+                    sh 'sonar-scanner -X'
                 }
             }
         }
