@@ -49,7 +49,10 @@ pipeline {
         stage('SonarQube Analysis') {
 	  steps {
 	    withSonarQubeEnv('SonarQube') {
-	      sh 'sonar-scanner -Dsonar.projectKey=backend-app -Dsonar.sources=src'
+	      sonarScanner(
+		projectKey: 'backend-app',
+		sources: 'src'
+	      )
 	    }
 	  }
 	}
