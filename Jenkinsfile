@@ -46,16 +46,16 @@ pipeline {
             }
         }
         
-        stage('SonarQube Analysis') {
-	    steps {
-		withSonarQubeEnv('SonarQube') {  // nombre de tu configuración SonarQube en Jenkins
-		    script {
-		        docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-		            sh 'sonar-scanner -Dsonar.projectKey=backend-app -Dsonar.sources=src'
-		        }
-		    }
-		}
+	stage('SonarQube Analysis') {
+	  steps {
+	    withSonarQubeEnv('SonarQube') {
+	      sh '''
+		podman run --rm -v $PWD:/usr/src sonarsource/sonar-scanner-cli \
+		  -Dsonar.projectKey=backend-app \
+		  -Dsonar.sources=src
+	      '''
 	    }
+	  }
 	}
 
 
