@@ -6,7 +6,7 @@ pipeline {
     }
 
     tools {
-        sonar 'DefaultScanner'
+        sonarRunner 'DefaultScanner'
     }
 
     stages {
