@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_ENV = 'SonarQube'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -12,40 +8,55 @@ pipeline {
             }
         }
 
-	stage('Compile') {
-	    steps {
-		sh '''
-		    mkdir -p build/classes
-		    javac -cp lib/jakarta.servlet-api.jar -d build/classes -sourcepath src/main/java $(find src/main/java -name "*.java")
-		'''
-	    }
-	}
-
-	stage('Package WAR') {
-	    steps {
-		sh '''
-		    mkdir -p build/webapp/WEB-INF/classes
-		    cp -r build/classes/* build/webapp/WEB-INF/classes/
-		    cp libs/jakarta.servlet-api.jar build/webapp/WEB-INF/lib/
-		    cp -r src/main/webapp/* build/webapp/
-		    cd build/webapp
-		    jar -cvf ../../myapp.war *
-		    cd ../..
-		'''
-	    }
-	}
-
-        stage('SonarQube Analysis') {
+        stage('Prepare libs') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=mi-proyecto \
-                          -Dsonar.sources=src/main/java \
-                          -Dsonar.java.binaries=build/classes
-                    '''
-                }
+                sh '''
+                    mkdir -p lib
+                    curl -L -o lib/jakarta.servlet-api.jar https://repo1.maven.org/maven2/jakarta/servlet/jakarta.servlet-api/5.0.0/jakarta.servlet-api-5.0.0.jar
+                '''
             }
+        }
+
+        stage('Compile') {
+            steps {
+                sh '''
+                    ls -l lib
+                    mkdir -p build/classes
+                    javac -cp lib/jakarta.servlet-api.jar -d build/classes -sourcepath src/main/java $(find src/main/java -name "*.java")
+                '''
+            }
+        }
+
+        stage('Package WAR') {
+            steps {
+                sh '''
+                    mkdir -p build/webapp/WEB-INF/classes
+                    mkdir -p build/webapp/WEB-INF/lib
+                    # Copia las clases compiladas
+                    cp -r build/classes/* build/webapp/WEB-INF/classes/
+                    # Copia el servlet-api.jar (opcional, usualmente el servidor lo provee)
+                    cp lib/jakarta.servlet-api.jar build/webapp/WEB-INF/lib/
+                    # Copia el contenido web (JSP, HTML, etc)
+                    cp -r src/main/webapp/* build/webapp/
+                    # Empaqueta el WAR
+                    cd build/webapp
+                    jar -cvf ../../myapp.war *
+                    cd ../..
+                '''
+            }
+        }
+
+        // Puedes agregar aquí análisis SonarQube si quieres
+    }
+
+    post {
+        success {
+            echo 'Build and package completed successfully!'
+            archiveArtifacts artifacts: 'myapp.war', fingerprint: true
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
+
