@@ -46,7 +46,14 @@ pipeline {
             }
         }
 
-        // Puedes agregar aquí análisis SonarQube si quieres
+        stage('SonarQube Analysis') {
+	  steps {
+	    withSonarQubeEnv('SonarQube') {
+	      sh 'sonar-scanner -Dsonar.projectKey=backend-app -Dsonar.sources=src'
+	    }
+	  }
+	}
+
     }
 
     post {
