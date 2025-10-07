@@ -2,21 +2,17 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'SonarQube' // Cambialo si le diste otro nombre en Jenkins
+        SONARQUBE_ENV = 'SonarQube' // Nombre del servidor configurado en Jenkins
+    }
+
+    tools {
+        sonarQubeScanner 'DefaultScanner' // Este nombre debe coincidir
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git 'https://github.com/jram97/backend-app.git'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                // Poné aquí lo necesario para tu proyecto (opcional)
-                // Por ejemplo: sh 'npm install' o 'pip install -r requirements.txt'
-                echo 'Instalando dependencias...'
             }
         }
 
@@ -29,3 +25,4 @@ pipeline {
         }
     }
 }
+
