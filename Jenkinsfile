@@ -5,10 +5,6 @@ pipeline {
         SONARQUBE_ENV = 'SonarQube'
     }
 
-    tools {
-        sonarRunner 'DefaultScanner'
-    }
-
     stages {
         stage('Debug') {
             steps {
