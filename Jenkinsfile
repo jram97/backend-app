@@ -10,11 +10,19 @@ pipeline {
     }
 
     stages {
+        stage('Debug') {
+	    steps {
+        	sh 'which sonar-scanner || echo "Sonar-scanner no está disponible"'
+    	    }
+	}
+
+        
         stage('Checkout') {
             steps {
                 git 'https://github.com/jram97/backend-app.git'
             }
         }
+        
 
         stage('SonarQube Analysis') {
             steps {
