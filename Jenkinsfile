@@ -49,10 +49,9 @@ pipeline {
         stage('SonarQube Analysis') {
 	  steps {
 	    withSonarQubeEnv('SonarQube') {
-	      sonarScanner(
-		projectKey: 'backend-app',
-		sources: 'src'
-	      )
+	      docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+		sh 'sonar-scanner -Dsonar.projectKey=backend-app -Dsonar.sources=src'
+	      }
 	    }
 	  }
 	}
